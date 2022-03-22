@@ -1,0 +1,66 @@
+---
+
+ - hosts: all
+   become: true
+   pre_tasks:
+   
+   - name: Install updates for Ubuntu and Debian
+     apt:
+         upgrade: dist
+         update_cache: yes
+     when: ansible_distribution in ["Ubuntu", "Debian"]
+   
+   - name: Install updates for RHEL based distributions
+     dnf:
+         name: "*"
+         state: latest
+         update_cache: yes
+     when: ansible_distribution in ["Rocky", "CentOS"]
+
+ - hosts: all
+   become: true
+   tasks:
+
+    - name: Create users mejsnar
+      user:
+          name: mejsnar
+          groups: sudo, cdrom, adm, dip, plugdev, lxd
+          shell: /bin/bash
+          append: yes
+      when: ansible_distribution == "Ubuntu"
+
+      user:
+          name: mejsnar
+          groups: sudo, cdrom, floppy, audio, dip, video, plugdev, netdev, adm
+          shell: /bin/bash
+          append: yes
+      when: ansible_distribution == "Debian"
+    
+      user:
+          name: mejsnar
+          groups: wheel
+          shell: /bin/bash
+          append: yes
+      when: ansible_distribution in ["Rocky", "CentOS"]
+    
+    - name: Create users ansible
+      user:
+          name: ansible
+          shell: /bin/bash
+
+    - name: Add SSH keys
+      authorized_key:
+          user: mejsnar
+          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+      
+      authorized_key:
+          user: ansible
+          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+    
+    - name: Add sudoers file for ansible user account
+      copy:
+          src: sudoer_ansible
+          dest: /etc/sudoers.d/ansible
+          owner: root
+          group: root
+          mode: 0440
