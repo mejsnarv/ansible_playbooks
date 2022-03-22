@@ -1,0 +1,19 @@
+---
+
+ - hosts: all
+   become: true
+   tasks:
+   
+   - name: Install Ubuntu updates
+     apt:
+         upgrade: yes
+         update_cache: yes
+         autoremove: yes
+     when: ansible_distribution in ["Ubuntu", "Debian"]
+
+   - name: Install RHEL updates
+     dnf:
+         name: "*"
+         state: latest
+         update_cache: yes
+     when: ansible_distribution == "Rocky"
