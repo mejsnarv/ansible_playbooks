@@ -4,7 +4,7 @@
    become: true
    tasks:
    
-   - name: Install Ubuntu updates
+   - name: Install Ubuntu/Debian updates
      apt:
          upgrade: yes
          update_cache: yes
