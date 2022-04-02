@@ -19,7 +19,9 @@
 
    - name: Install EPEL repository for RHEL based distributions
      dnf:
-         name: "epel-release"
+         name: 
+         - epel-release
+         - yum-utils
          state: latest
      when: ansible_distribution in ["Rocky", "CentOS"]
 
