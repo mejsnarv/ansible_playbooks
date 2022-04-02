@@ -2,7 +2,7 @@
 
  - hosts: all
    become: true
-   pre_tasks:
+   tasks:
    
    - name: Install updates for Ubuntu and Debian
      apt:
@@ -17,45 +17,56 @@
          update_cache: true
      when: ansible_distribution in ["Rocky", "CentOS"]
 
- - hosts: all
-   become: true
-   tasks:
+   - name: Install EPEL repository for RHEL based distributions
+     dnf:
+         name: "epel-release"
+         state: latest
+     when: ansible_distribution in ["Rocky", "CentOS"]
 
-    - name: Create users mejsnar in Ubuntu/Debian
-      user:
-          name: mejsnar
-          groups: sudo, adm
-          shell: /bin/bash
-          append: yes
-      when: ansible_distribution in ["Ubuntu", "Debian"]
-    
-    - name: Create users mejsnar in RHEL Ditributions
-      user:
-          name: mejsnar
-          groups: wheel
-          shell: /bin/bash
-          append: yes
-      when: ansible_distribution in ["Rocky", "CentOS"]
-    
-    - name: Create users ansible in all distributions
-      user:
-          name: ansible
-          shell: /bin/bash
+   - name: Install basic packages
+     package:
+         name: 
+         - vim
+         - mc
+         - htop
+         - tmux
+         state: latest
 
-    - name: Add SSH keys for user mejsnar
-      authorized_key:
-          user: mejsnar
-          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+   - name: Create users mejsnar in Ubuntu/Debian
+     user:
+         name: mejsnar
+         groups: sudo, adm
+         shell: /bin/bash
+         append: yes
+     when: ansible_distribution in ["Ubuntu", "Debian"]
     
-    - name: Add SSH keys for user ansible  
-      authorized_key:
-          user: ansible
-          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+   - name: Create users mejsnar in RHEL Ditributions
+     user:
+         name: mejsnar
+         groups: wheel
+         shell: /bin/bash
+         append: yes
+     when: ansible_distribution in ["Rocky", "CentOS"]
     
-    - name: Add sudoers file for ansible user account
-      copy:
-          src: sudoer_ansible
-          dest: /etc/sudoers.d/ansible
-          owner: root
-          group: root
-          mode: 0440
+   - name: Create users ansible in all distributions
+     user:
+         name: ansible
+         shell: /bin/bash
+
+   - name: Add SSH keys for user mejsnar
+     authorized_key:
+         user: mejsnar
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+    
+   - name: Add SSH keys for user ansible  
+     authorized_key:
+         user: ansible
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+    
+   - name: Add sudoers file for ansible user account
+     copy:
+         src: sudoer_ansible
+         dest: /etc/sudoers.d/ansible
+         owner: root
+         group: root
+         mode: 0440
