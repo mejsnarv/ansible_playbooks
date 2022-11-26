@@ -17,7 +17,7 @@
          update_cache: true
      when: ansible_distribution in ["Rocky", "CentOS"]
 
-   - name: Install EPEL repository for RHEL based distributions
+   - name: Install EPEL repository and other RHEL specific software
      dnf:
          name: 
          - epel-release
@@ -25,7 +25,14 @@
          state: latest
      when: ansible_distribution in ["Rocky", "CentOS"]
 
-   - name: Install basic packages
+   - name: Install Ubuntu/Debian specific software
+     apt:
+         name:
+         - unattended-upgrades
+         state: latest
+     when: ansible_distribution in ["Ubuntu", "Debian"]
+
+   - name: Install basic packages for all distributions
      package:
          name: 
          - vim
@@ -72,3 +79,12 @@
          owner: root
          group: root
          mode: 0440
+
+   - name: Add unattended-upgrades config file
+     copy:
+         src: 50unattended-upgrades
+         dest: /etc/apt/apt.conf.d/50unattended-upgrades
+         owner: root
+         group: root
+         mode: 0644
+     when: ansible_distribution in ["Ubuntu", "Debian"]
