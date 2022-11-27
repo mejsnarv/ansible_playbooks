@@ -22,6 +22,7 @@
          name: 
          - epel-release
          - yum-utils
+         - dnf-automatic
          state: latest
      when: ansible_distribution in ["Rocky", "CentOS"]
 
@@ -40,6 +41,43 @@
          - htop
          - tmux
          state: latest
+
+   - name: Add unattended-upgrades config file
+     copy:
+         src: 50unattended-upgrades
+         dest: /etc/apt/apt.conf.d/50unattended-upgrades
+         owner: root
+         group: root
+         mode: 0644
+     when: ansible_distribution in ["Ubuntu", "Debian"]
+   
+   - name: Enable a timer unit for dnf-automatic and set automatic restart if required
+     systemd:
+       name: dnf-automatic-install.timer
+       state: started
+       enabled: yes
+     when: ansible_distribution in ["Rocky", "CentOS"]
+
+   - name: Create restart script (RHEL)
+     copy:
+         src: restart_required.sh
+         dest: /root/restart_required.sh
+         owner: root
+         group: root
+         mode: 0755
+     when: ansible_distribution in ["Rocky", "CentOS"]
+
+   - name: Create cron job for restart script (RHEL)
+     cron:
+         name: "Requiered restart after update"
+         user: root
+         minute: 0
+         hour: 4
+         day: "*"
+         month: "*"
+         weekday: "*"
+         job: /bin/bash /root/restart_required.sh
+     when: ansible_distribution in ["Rocky", "CentOS"]
 
    - name: Create users mejsnar in Ubuntu/Debian
      user:
@@ -79,12 +117,3 @@
          owner: root
          group: root
          mode: 0440
-
-   - name: Add unattended-upgrades config file
-     copy:
-         src: 50unattended-upgrades
-         dest: /etc/apt/apt.conf.d/50unattended-upgrades
-         owner: root
-         group: root
-         mode: 0644
-     when: ansible_distribution in ["Ubuntu", "Debian"]
