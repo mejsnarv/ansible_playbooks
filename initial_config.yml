@@ -17,6 +17,13 @@
          update_cache: true
      when: ansible_distribution in ["Rocky", "CentOS"]
 
+   - name: Install updates for Alpine linux
+     community.general.apk:
+         update_cache: true
+         name: doas
+         state: latest
+     when: ansible_distribution in ["Alpine"]
+
    - name: Install EPEL repository and other RHEL specific software
      dnf:
          name: 
@@ -32,6 +39,12 @@
          - unattended-upgrades
          state: latest
      when: ansible_distribution in ["Ubuntu", "Debian"]
+
+   - name: Install doas for Alpine linux
+     community.general.apk:
+         update_cache: true
+         upgrade: true
+     when: ansible_distribution in ["Alpine"]
 
    - name: Install basic packages for all distributions
      package:
@@ -103,11 +116,26 @@
          shell: /bin/bash
          append: yes
      when: ansible_distribution in ["Rocky", "CentOS"]
+
+   - name: Create users mejsnar in Alpine linux
+     user:
+         name: mejsnar
+         groups: wheel
+         shell: /bin/ash
+     when: ansible_distribution in ["Alpine"]
     
-   - name: Create users ansible in all distributions
+   - name: Create users ansible in all RHEL/Debian distros
      user:
          name: ansible
          shell: /bin/bash
+     when: ansible_distribution in ["Rocky", "CentOS", "Ubuntu", "Debian"]
+
+   - name: Create users ansible in Alpine linux
+     user:
+         name: ansible
+         groups: wheel
+         shell: /bin/ash
+     when: ansible_distribution in ["Alpine"]
 
    - name: Add SSH keys for user mejsnar
      authorized_key:
@@ -119,10 +147,20 @@
          user: ansible
          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
     
-   - name: Add sudoers file for ansible user account
+   - name: Add sudoers file for ansible user account (RHEL/Debian distros)
      copy:
          src: sudoer_ansible
          dest: /etc/sudoers.d/ansible
          owner: root
          group: root
          mode: 0440
+     when: ansible_distribution in ["Rocky", "CentOS", "Ubuntu", "Debian"]
+
+   - name: Add doas.conf file to Alpine linux
+     copy:
+         src: doas.conf
+         dest: /etc/doas.conf
+         owner: root
+         group: root
+         mode: 0640
+     when: ansible_distribution in ["Alpine"]
