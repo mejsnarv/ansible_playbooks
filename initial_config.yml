@@ -16,12 +16,11 @@
          state: latest
          update_cache: true
      when: ansible_distribution in ["Rocky", "CentOS"]
-
+     
    - name: Install updates for Alpine linux
      community.general.apk:
          update_cache: true
-         name: doas
-         state: latest
+         upgrade: true
      when: ansible_distribution in ["Alpine"]
 
    - name: Install EPEL repository and other RHEL specific software
@@ -43,7 +42,8 @@
    - name: Install doas for Alpine linux
      community.general.apk:
          update_cache: true
-         upgrade: true
+         name: doas
+         state: latest
      when: ansible_distribution in ["Alpine"]
 
    - name: Install basic packages for all distributions
