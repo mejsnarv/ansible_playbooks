@@ -1,0 +1,48 @@
+---
+
+ - hosts: Alpine
+   become: true
+   tasks:
+
+   - name: Install updates
+     community.general.apk:
+         update_cache: true
+         upgrade: true
+
+   - name: Install basic packages
+     community.general.apk:
+         update_cache: true
+         name: doas,mc,htop,tmux
+         state: latest
+
+   - name: Create users mejsnar
+     user:
+         name: mejsnar
+         groups: wheel
+         shell: /bin/ash
+     when: ansible_distribution in ["Alpine"]
+
+   - name: Create users ansible
+     user:
+         name: ansible
+         groups: wheel
+         shell: /bin/ash
+
+   - name: Add SSH keys for user mejsnar
+     authorized_key:
+         user: mejsnar
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+    
+   - name: Add SSH keys for user ansible  
+     authorized_key:
+         user: ansible
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+
+   - name: Add doas.conf file
+     copy:
+         src: doas.conf
+         dest: /etc/doas.conf
+         owner: root
+         group: root
+         mode: 0640
+     when: ansible_distribution in ["Alpine"]

@@ -1,0 +1,66 @@
+---
+
+ - hosts: Deb
+   become: true
+   tasks:
+   
+   - name: Install updates
+     apt:
+         upgrade: dist
+         update_cache: true
+
+   - name: Install basic packages
+     apt:
+         name:
+         - unattended-upgrades
+         - mc
+         - htop
+         - tmux
+         state: latest
+
+   - name: Add unattended-upgrades config file
+     copy:
+         src: 50unattended-upgrades
+         dest: /etc/apt/apt.conf.d/50unattended-upgrades
+         owner: root
+         group: root
+         mode: 0644
+
+   - name: Add unattended-upgrades config file
+     copy:
+         src: 20auto-upgrades
+         dest: /etc/apt/apt.conf.d/20auto-upgrades
+         owner: root
+         group: root
+         mode: 0644
+   
+   - name: Create users mejsnar
+     user:
+         name: mejsnar
+         groups: sudo, adm
+         shell: /bin/bash
+         append: yes
+    
+   - name: Create users ansible
+     user:
+         name: ansible
+         shell: /bin/bash
+
+   - name: Add SSH keys for user mejsnar
+     authorized_key:
+         user: mejsnar
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+    
+   - name: Add SSH keys for user ansible  
+     authorized_key:
+         user: ansible
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+    
+   - name: Add sudoers file for ansible user account
+     copy:
+         src: sudoer_ansible
+         dest: /etc/sudoers.d/ansible
+         owner: root
+         group: root
+         mode: 0440
+     when: ansible_distribution in ["Rocky", "CentOS", "Ubuntu", "Debian"]

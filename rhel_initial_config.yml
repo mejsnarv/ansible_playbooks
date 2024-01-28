@@ -1,0 +1,77 @@
+---
+
+ - hosts: RHEL
+   become: true
+   tasks:
+
+   - name: Install updates
+     dnf:
+         name: "*"
+         state: latest
+         update_cache: true
+
+   - name: Install EPEL repository and basic packages
+     dnf:
+         name: 
+         - epel-release
+         - yum-utils
+         - dnf-automatic
+         - mc
+         - htop
+         - tmux
+         state: latest
+
+   - name: Enable a timer unit for dnf-automatic and set automatic restart if required
+     systemd:
+       name: dnf-automatic-install.timer
+       state: started
+       enabled: yes
+
+   - name: Create restart script
+     copy:
+         src: restart_required.sh
+         dest: /root/restart_required.sh
+         owner: root
+         group: root
+         mode: 0755
+
+   - name: Create cron job for restart script
+     cron:
+         name: "Requiered restart after update"
+         user: root
+         minute: 0
+         hour: 4
+         day: "*"
+         month: "*"
+         weekday: "*"
+         job: /bin/bash /root/restart_required.sh
+
+   - name: Create users mejsnar
+     user:
+         name: mejsnar
+         groups: wheel
+         shell: /bin/bash
+         append: yes
+
+   - name: Create users ansible
+     user:
+         name: ansible
+         shell: /bin/bash
+
+   - name: Add SSH keys for user mejsnar
+     authorized_key:
+         user: mejsnar
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAchi11PTcAr+5VV1ZOhvaP9eSz1YYYD8bjYGZ9d4kW+ mejsnar"
+    
+   - name: Add SSH keys for user ansible  
+     authorized_key:
+         user: ansible
+         key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+    
+   - name: Add sudoers file for ansible user account
+     copy:
+         src: sudoer_ansible
+         dest: /etc/sudoers.d/ansible
+         owner: root
+         group: root
+         mode: 0440
