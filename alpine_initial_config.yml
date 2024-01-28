@@ -20,7 +20,6 @@
          name: mejsnar
          groups: wheel
          shell: /bin/ash
-     when: ansible_distribution in ["Alpine"]
 
    - name: Create users ansible
      user:
@@ -45,4 +44,3 @@
          owner: root
          group: root
          mode: 0640
-     when: ansible_distribution in ["Alpine"]
