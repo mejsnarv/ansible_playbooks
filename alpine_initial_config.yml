@@ -21,12 +21,16 @@
    - name: Create users mejsnar
      user:
          name: mejsnar
+         update_password: on_create
+         password: '*'
          groups: wheel
          shell: /bin/ash
 
    - name: Create users ansible
      user:
          name: ansible
+         update_password: on_create
+         password: '*'
          groups: wheel
          shell: /bin/ash
 

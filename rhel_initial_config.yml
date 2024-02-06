@@ -50,12 +50,16 @@
      user:
          name: mejsnar
          groups: wheel
+         update_password: on_create
+         password: '*'
          shell: /bin/bash
          append: yes
 
    - name: Create users ansible
      user:
          name: ansible
+         update_password: on_create
+         password: '*'
          shell: /bin/bash
 
    - name: Add SSH keys for user mejsnar
