@@ -7,6 +7,14 @@
     ansible_python_interpreter: auto_silent
    tasks:
 
+   - name: Add repository file
+     copy:
+         src: repositories
+         dest: /etc/apk/repositories
+         owner: root
+         group: root
+         mode: 0644
+
    - name: Install updates
      community.general.apk:
          update_cache: true
