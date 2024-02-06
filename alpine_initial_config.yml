@@ -42,6 +42,11 @@
          groups: wheel
          shell: /bin/ash
 
+   - name: Disable root password
+     user:
+         name: root
+         password: '*'
+
    - name: Add SSH keys for user mejsnar
      authorized_key:
          user: mejsnar
