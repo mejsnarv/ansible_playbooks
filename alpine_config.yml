@@ -69,3 +69,6 @@
          owner: root
          group: root
          mode: 0644
+
+   - name: Remove default MOTD
+     shell: echo "" > /etc/motd
