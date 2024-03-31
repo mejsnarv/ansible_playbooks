@@ -2,9 +2,6 @@
 
  - hosts: Alpine
    become: true
-   vars:
-    ansible_become_method: doas
-    ansible_python_interpreter: auto_silent
    tasks:
 
    - name: Add repository file
