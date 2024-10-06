@@ -59,6 +59,14 @@
      authorized_key:
          user: ansible
          key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICrTU3a7BdGwUfBFmHi4eOBRUTOVju0sRQTUvHQrLn2O ansible"
+         
+   - name: Add sshd_config file
+     copy:
+         src: sshd_config
+         dest: /etc/ssh/sshd_config
+         owner: root
+         group: root
+         mode: 0644
     
    - name: Add sudoers file for ansible user account
      copy:
@@ -67,4 +75,3 @@
          owner: root
          group: root
          mode: 0440
-     when: ansible_distribution in ["Rocky", "CentOS", "Ubuntu", "Debian"]
