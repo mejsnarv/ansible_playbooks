@@ -20,7 +20,7 @@
    - name: Install basic packages
      community.general.apk:
          update_cache: true
-         name: doas,mc,htop,tmux
+         name: doas,mc,htop,tmux,vim
          state: latest
 
    - name: Create users mejsnar
